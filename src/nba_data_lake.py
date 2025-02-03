@@ -5,7 +5,6 @@ import time
 import requests 
 from dotenv import load_dotenv
 
-
 # Load environment variables from .env file
 load_dotenv()
 
@@ -13,7 +12,7 @@ load_dotenv()
 region = os.getenv("REGION")
 bucket_name = os.getenv("AWS_BUCKET_NAME")
 glue_database_name = os.getenv("AWS_GLUE_DB_NAME")
-athena_output_location = os.getenv(f"ATHENA_OUTPUT_LOCATION")
+athena_output_location = f"s3://{bucket_name}/athena-results/"
 
 # Sportsdata.io configurations (loaded from .env)
 api_key = os.getenv("SPORTS_DATA_API_KEY") 
@@ -27,7 +26,7 @@ athena_client = boto3.client("athena", region_name=region)
 def create_s3_bucket():
     """Create an S3 bucket for storing sports data."""
     try:
-        if region == "us-east-1":
+        if region == "us-west-1":
             s3_client.create_bucket(Bucket=bucket_name)
         else:
             s3_client.create_bucket(
