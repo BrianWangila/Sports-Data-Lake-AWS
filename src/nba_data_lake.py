@@ -26,7 +26,7 @@ athena_client = boto3.client("athena", region_name=region)
 def create_s3_bucket():
     """Create an S3 bucket for storing sports data."""
     try:
-        if region == "us-west-1":
+        if region == "us-east-1":
             s3_client.create_bucket(Bucket=bucket_name)
         else:
             s3_client.create_bucket(
