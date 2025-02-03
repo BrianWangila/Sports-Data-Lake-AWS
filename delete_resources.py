@@ -7,8 +7,8 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # Define the names of resources to delete
-BUCKET_NAME = "sports-analytics-data-lake"
-GLUE_DATABASE_NAME = "glue_nba_data_lake"
+BUCKET_NAME = os.getenv("AWS_BUCKET_NAME")
+GLUE_DATABASE_NAME = os.getenv("AWS_GLUE_DB_NAME")
 
 def delete_athena_query_results(bucket_name):
     """Delete Athena query results stored in the specified S3 bucket."""

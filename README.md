@@ -1,154 +1,115 @@
 # 30 Days DevOps Challenge - NBA Data Lake
+---
 
 **Day 3:** Automating the building of an NBA Sports Data Lake by leveraging AWS S3, AWS Glue, and AWS Athena to set up an infrastructure to store and query NBA-related data.
 
-<!--
+
 ## **Project Overview**
-This project is an alert system that sends real-time NBA game day score notifications to subscribed users via SMS or Email. It leverages **Amazon SNS**, **AWS Lambda and Python**, **Amazon EvenBridge** and **NBA APIs** to provide sports fans with up-to-date game information. 
-The project demonstrates cloud computing principles and efficient notification mechanisms.
+This **NBA data Lake** project does the following:
+- Creates a Python script to automate the process of building the data lake.
+- Creates an Amazon S3 bucket to store raw and processed data.
+- Uploads sample NBA data (JSON format) to the S3 bucket.
+- Creates an AWS Glue database and an external table for querying the data.
+- Configures Amazon Athena for querying data stored in the S3 bucket.
 
 ---
-
 ## **Features**
-- Fetches live NBA game data from an external API.
-- Sends formatted score updates to subscribers via Email using Amazon SNS.
-- Scheduled automation for regular updates using Amazon EventBridge.
+- Creates a Python script to automate the process of building the data lake.
+- Creates an Amazon S3 bucket to store raw and processed data.
+- Uploads sample NBA data (JSON format) to the S3 bucket.
+- Creates an AWS Glue database and an external table for querying the data.
+- Configures Amazon Athena for querying data stored in the S3 bucket.
+
 
 ## **Prerequisites**
 - Free account with subscription and API Key at [sportsdata.io](https://sportsdata.io/)
 - Personal AWS account with basic understanding of AWS and Python
+- IAM Role/Permissions have been set
 
 ---
 
 ## **Technical Architecture**
-![Diagram](<game day architect.png>)
+![IMAGE](NBA_DATA_LAKE.png)
 
 ---
 
 ## **Technologies Used**
 - **Cloud Provider**: AWS
-- **Core Services**: SNS, Lambda, EventBridge
+- **Core Services**: AWS S3, AWS Glue, AWS Athena
 - **External API**: NBA Game API (SportsData.io)
 - **Programming Language**: Python3
 
 ---
 
+
 ## **Project File Structure**
 ```bash
-game-day-notifications/
+Sports-Data-Lake-AWS/
 ├── src/
-│   ├── gd_notifications.py          # Main Lambda function code
+│   ├── nba_data_lake.py          # Main function code
 ├── policies/
-│   ├── gb_sns_policy.json           # SNS publishing permissions
-│   ├── gd_eventBridge_policy.json   # EventBridge to Lambda permissions
-│   └── gd_lambda_policy.json        # Lambda execution role permissions
+│   ├── IAM_Role.json           # Permissions for running the script
 ├── .gitignore
-└── README.md                        # Project documentation
+├── README.md                        # Project documentation
+├── delete_resources.py              # Python script for deleting all resources
+└── requirements.txt 
 ```
+
 
 ## **Setup Instructions**
 
 ### 1. **Clone the Repository**
 ```bash
-git clone https://github.com/BrianWangila/Game-Day-notification-sys.git # Using HTTPS
+git clone https://github.com/BrianWangila/Sports-Data-Lake-AWS.git # Using HTTPS
 
-OR
+# OR
 
-git clone git@github.com:BrianWangila/Game-Day-notification-sys.git     # Using SSH
+git clone git@github.com:BrianWangila/Sports-Data-Lake-AWS.git    # Using SSH
 
-cd game-day-notifications
+cd Sports-Data-Lake-AWS
 
 ```
 
-### 2. **Create an SNS Topic**
-1. Open the AWS Management Console.
-2. Navigate to the SNS service.
-3. Click Create Topic and select Standard as the topic type.
-4. Name the topic (e.g., gd_topic) and note the ARN.
-5. Click Create Topic.
+### 2. **To run the script**
+1. Ensure you have logged into your AWS account and taken note of the Access key and secret key
+2. Save them credentials in the .env file abut make sure you don't commit the file to an online repository
+3. Install the required packages by running `pip install -r requirements.txt`
+4. Run the script using `python3 src/nba_data_lake.py`
 
-### 3. **Add Subscriptions to the SNS Topic**
-1. After creating the topic, click on the topic name from the list.
-2. Navigate to the Subscriptions tab and click Create subscription.
-3. Select a Protocol:
-- For Email:
-  - Choose Email.
-  - Enter a valid email address.
-- For SMS (phone number):
-  - Choose SMS.
-  - Enter a valid phone number in international format (e.g., +1234567890).
+- You should see the resources were successfully created, the sample data was uploaded successfully and the Data Lake Setup Completed
 
-4. Click Create Subscription.
-5. If you added an Email subscription:
-- Check the inbox of the provided email address.
-- Confirm the subscription by clicking the confirmation link in the email.
-6. For SMS, the subscription will be immediately active after creation.
+### 3. **Manually check for the created resources**
+- Go to the AWS Management Console and navigate to the respective services to verify the resources were created successfully
+- You can also check the AWS CloudWatch logs for any errors
+- You can check the AWS S3 bucket to verify the data was uploaded successfully
+- You can check the AWS Glue Data Catalog to verify the database and table were created successfully
+- You can check the AWS Athena to verify the database and table were created successfully. To do this, head over to Amazon Athena and paste the following sample query:
+```bash
+  SELECT FirstName, LastName, Position, Team
+  FROM nba_players
+  WHERE Position = 'PG';
 
-### 4. **Create the SNS Publish Policy**
-1. Open the IAM service in the AWS Management Console.
-2. Navigate to Policies → Create Policy.
-3. Click JSON and paste the JSON policy from gd_sns_policy.json file
-4. Replace REGION and ACCOUNT_ID with your AWS region and account ID.
-5. Click Next: Tags (you can skip adding tags).
-6. Click Next: Review.
-7. Enter a name for the policy (e.g., gd_sns_policy).
-8. Review and click Create Policy.
-
-### 5. **Create an IAM Role for Lambda**
-1. Open the IAM service in the AWS Management Console.
-2. Click Roles → Create Role.
-3. Select AWS Service and choose Lambda.
-4. Attach the following policies:
-- SNS Publish Policy (gd_sns_policy) (created in the previous step).
-- Lambda Basic Execution Role (AWSLambdaBasicExecutionRole) (an AWS managed policy).
-5. Click Next: Tags (you can skip adding tags).
-6. Click Next: Review.
-7. Enter a name for the role (e.g., gd_role).
-8. Review and click Create Role.
-9. Copy and save the ARN of the role for use in the Lambda function.
-
-### 6. **Deploy the Lambda Function**
-1. Open the AWS Management Console and navigate to the Lambda service.
-2. Click Create Function.
-3. Select Author from Scratch.
-4. Enter a function name (e.g., gd_notifications).
-5. Choose Python 3.x as the runtime.
-6. Assign the IAM role created earlier (gd_role) to the function.
-7. Under the Function Code section:
-- Copy the content of the src/gd_notifications.py file from the repository.
-- Paste it into the inline code editor.
-8. Under the Environment Variables section, add the following:
-- NBA_API_KEY: your NBA API key.
-- SNS_TOPIC_ARN: the ARN of the SNS topic created earlier.
-9. Click Create Function.
+  # Click Run -You should see an output if you scroll down under "Query Results"
+```
 
 
-### 7. **Set Up Automation with EventBridge**
-1. Navigate to the EventBridge service in the AWS Management Console.
-2. Go to Rules → Create Rule.
-3. Select Event Source: Schedule.
-4. Set the cron schedule for when you want updates (e.g., hourly).
-5. Under Targets, select the Lambda function (gd_notifications) and save the rule.
+### 4. **Cleaning up**
+- Run the `delete_resources.py` script to delete all the resources created by the script. Run `python3 delete_resources.py`
+- All your initially created resources will be deleted and you won't incur any charges in AWS
 
 
-### 8. **Test the System**
-1. Open the Lambda function in the AWS Management Console.
-2. Create a test event to simulate execution.
-3. Run the function and check CloudWatch Logs for errors.
-4. Verify that SMS notifications are sent to the subscribed users.
-
-![Sample output](<sample_output.png>)
+## **Output**
+![alt text](output.png)
 
 
-## **What We Learned**
-1. Designing a notification system with AWS SNS and Lambda.
-2. Securing AWS services with least privilege IAM policies.
-3. Automating workflows using EventBridge.
-4. Integrating external APIs into cloud-based workflows.
+## **What We Learn**
+1. Securing AWS services with least privilege IAM policies.
+2. Automating the creation of services with a script.
+3. Integrating external APIs into cloud-based workflows.
 
 
 ## **Future Enhancements**
-1. Add NFL score alerts for extended functionality.
-2. Store user preferences (teams, game types) in DynamoDB for personalized alerts.
-3. Implement a UI displaying the data
+1. Automate data ingestion with AWS Lambda
+2. Implement a data transformation layer with AWS Glue ETL
+3. Add advanced analytics and visualizations (AWS QuickSight)
 
