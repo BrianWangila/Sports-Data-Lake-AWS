@@ -1,6 +1,6 @@
 # 30 Days DevOps Challenge - NBA Data Lake
 
-**Day 3:** Automating the building of an NBA Sports Data Lake by leveraging AWS S3, AWS Glue, and AWS Athena and set up an infrastructure to store and query NBA-related data.
+**Day 3:** Automating the building of an NBA Sports Data Lake by leveraging AWS S3, AWS Glue, and AWS Athena to set up an infrastructure to store and query NBA-related data.
 
 <!--
 ## **Project Overview**
